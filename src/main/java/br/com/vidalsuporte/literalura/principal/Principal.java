@@ -1,8 +1,17 @@
 package br.com.vidalsuporte.literalura.principal;
 
+import br.com.vidalsuporte.literalura.dto.DadosAtor;
+import br.com.vidalsuporte.literalura.dto.DadosResultado;
+import br.com.vidalsuporte.literalura.entity.Autor;
+import br.com.vidalsuporte.literalura.entity.Livro;
+import br.com.vidalsuporte.literalura.repository.LivroRepository;
 import br.com.vidalsuporte.literalura.service.ConectaApi;
+import br.com.vidalsuporte.literalura.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
    private Scanner entrada = new Scanner(System.in);
@@ -23,7 +32,17 @@ public class Principal {
 
    private  String endereco  = "https://gutendex.com/books/?search=";
    private ConectaApi conectaApi = new ConectaApi();
+   private LivroRepository livroRepository;
+   public Principal(LivroRepository livroRepository){
+       this.livroRepository = livroRepository;
+   }
+
+
+
+
     public void exibirMenu(){
+
+
 
         do{
             System.out.println(menu);
@@ -32,12 +51,8 @@ public class Principal {
 
             switch (opcao){
                 case 1:{
+                    buscaLivroPorTitulo();
 
-                    System.out.println("Digite o nome do livro que deseja Buscar!");
-                   var nomeLivro = entrada.nextLine();
-                   endereco+= nomeLivro.replaceAll(" ","+");
-                    var dadosLivro = conectaApi.obterDados(endereco);
-                    System.out.println(dadosLivro);
 
                     break;
                 }
@@ -75,9 +90,21 @@ public class Principal {
 
     }
 
+    private void buscaLivroPorTitulo() {
+        System.out.println("Digite o nome do livro que deseja Buscar!");
+        var nomeLivro = entrada.nextLine();
+        endereco+= nomeLivro.replaceAll(" ","+");
+        DadosResultado dadosResultado = new ConverteDados().converteDados(conectaApi.obterDados(endereco), DadosResultado.class);
+        var livro = new Livro(dadosResultado.results().getFirst());
+        List<Autor> autores = dadosResultado.results().getFirst().autores().stream()
+                .map(d  -> new Autor(d.nome(), d.anoNascimento(), d.anoFalecimento()))
+                .collect(Collectors.toList());
+        livro.setAutores(autores);
 
+        livroRepository.save(livro);
 
-
+        System.out.println(livro);
+    }
 
 
 }
