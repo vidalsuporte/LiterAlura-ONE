@@ -79,11 +79,11 @@ public class Autor {
 
     @Override
     public String toString() {
-        return " Autor{" +
-                "id= " + id +
-                ", nome= '" + nome + '\'' +
-                ", anoNascimento= " + anoNascimento +
-                ", anoFalecimento= " + anoFalecimento +
-                "} ";
+        return "-------- Autor --------\n" +
+                "Nome: " + nome +
+                "\nAno Nascimento: " + anoNascimento +
+                "\nAno Falecimento: " + anoFalecimento +
+                "\nLivros: " + livro.getTitulo() +
+                "\n-----------------------\n ";
     }
 }
